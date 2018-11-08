@@ -7,6 +7,7 @@ import java.awt.event.MouseEvent;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import elukasik.pl.connection.GameFlow;
 import elukasik.pl.game.Board;
@@ -76,7 +77,9 @@ public class TicTacToeBoard extends JPanel {
 	}
 	
 	public void setStatusText(String text) {
-		statusLbl.setText(text);
+		SwingUtilities.invokeLater(() -> {
+			statusLbl.setText(text);
+		});
 	}
 	
 }

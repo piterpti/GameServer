@@ -20,6 +20,7 @@ public class GameFlow implements Runnable {
 	private String host = "127.0.0.1";
 	private int port = 8888;
 	private boolean gameEnd = false;
+	private String endError = null;
 	
 	private TicTacToeBoard gameBoard;
 
@@ -50,14 +51,17 @@ public class GameFlow implements Runnable {
 				
 				gto = (GameTransportObj) obj;
 				
-				System.out.println(gto.toString());
-				
+				while (!isGameEnd()) {
+					
+					if (gto.isWaitForP2()) {
+						updateStatusLbl("Waiting for player 2");
+					}
+				}
 			}
-			
-			
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			// TODO handle error (fill endError String and dispaly in message to user)
 			setGameEnd(true);
 		}
 		
@@ -78,5 +82,9 @@ public class GameFlow implements Runnable {
 	
 	public void setGameBoard(TicTacToeBoard gameBoard) {
 		this.gameBoard = gameBoard;
-	}	
+	}
+	
+	public void updateStatusLbl(String text) {
+		this.gameBoard.setStatusText(text);
+	}
 }

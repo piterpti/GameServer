@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
@@ -68,6 +69,7 @@ public class GameServer implements Runnable {
 						// creating new Game
 						Game game = new Game(gameId.getAndIncrement(), socket, (GameTransportObj)obj);
 						games.add(game);
+						
 					}
 				}
 				

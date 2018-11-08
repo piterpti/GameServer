@@ -8,6 +8,12 @@ public class GameTransportObj implements Serializable {
 	private Request request;
 	private boolean yourMove = false;
 	
+	private int x;
+	private int y;
+	
+	/** Wait for player 2 join */
+	private boolean waitForP2;
+	
 	/**
 	 * 
 	 */
@@ -34,4 +40,28 @@ public class GameTransportObj implements Serializable {
 	public boolean isYourMove() {
 		return yourMove;
 	}
+
+	public int getX() {
+		return x;
+	}
+
+	public void setX(int x) {
+		this.x = x;
+	}
+
+	public int getY() {
+		return y;
+	}
+
+	public void setY(int y) {
+		this.y = y;
+	}
+
+	public boolean isWaitForP2() {
+		return waitForP2;
+	}
+
+	public void setWaitForP2(boolean waitForP2) {
+		this.waitForP2 = waitForP2;
+	}	
 }
