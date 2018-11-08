@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
+import ch.qos.logback.classic.spi.ThrowableProxyVO;
 import pl.elukasik.service.ServerService;
 
 /**
@@ -19,7 +20,13 @@ public class GameServerApplication {
 
 	private static Logger logger = LoggerFactory.getLogger(GameServerApplication.class);
 	
-	public static void main(String[] args) {
+	/**
+	 * Application start
+	 * @param args not handling
+	 * @throws Throwable
+	 */
+	public static void main(String[] args) throws Throwable {
+		
 		ConfigurableApplicationContext ctx = SpringApplication.run(GameServerApplication.class, args);
 		
 		while (!ServerService.isShutdown()) {
@@ -27,7 +34,11 @@ public class GameServerApplication {
 			try {
 				Thread.sleep(100);
 			} catch (InterruptedException e) {
+				
 				logger.info("Main thread interruped!?", e);
+				ctx.close();
+				throw e;
+				
 			}
 		}
 		
