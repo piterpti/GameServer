@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -71,6 +72,14 @@ public class PlayerConnector implements Closeable {
 						logger.info(obj.toString());
 						setMessage((Message) obj);
 					}
+					
+				} catch (SocketException se) {
+					
+					if (!se.getMessage().contains("Socket closed")) {
+						logger.error("Can't read object", se);
+					}
+					
+					return;
 					
 				} catch (ClassNotFoundException | IOException e) {
 					logger.error("Can't read object", e);

@@ -131,6 +131,9 @@ public class GameHandler implements Runnable {
 			connP1.sendMessage(msg);
 			connP2.sendMessage(msg);	
 			
+			connP1.setEnd(true);
+			connP2.setEnd(true);
+			
 			connP1.close();
 			connP2.close();
 			
