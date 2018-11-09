@@ -12,8 +12,8 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.elukasik.model.Game;
-import pl.elukasik.model.GameTransportObj;
+import pl.elukasik.model.GameHandler;
+import pl.elukasik.model.Message;
 import pl.elukasik.service.ServerService;
 
 /**
@@ -27,7 +27,7 @@ public class GameServer implements Runnable {
 	
 	private Logger logger = LoggerFactory.getLogger(GameServer.class);
 	
-	private List<Game> games = new LinkedList<>();
+	private List<GameHandler> games = new LinkedList<>();
 	
 	
 	private final int port;
@@ -55,20 +55,23 @@ public class GameServer implements Runnable {
 				ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
 				Object obj = ois.readObject();
 				
-				if (obj instanceof GameTransportObj) {
+				if (obj instanceof Message) {
 				
-					Optional<Game> gameObj = games.stream().filter(g -> g.isWaitingForPlayer2()).findFirst();
+					Optional<GameHandler> gameObj = games.stream().filter(g -> g.isWaitingPlayer2()).findFirst();
 					
 					if (gameObj.isPresent()) {
 						// joining to existing game
-						Game game = gameObj.get();
-						game.setSocketP2(socket, (GameTransportObj)obj);
-						game.startGame();
+						GameHandler game = gameObj.get();
+						game.setSocketP2(socket, (Message)obj, ois);
 						
 					} else {
 						// creating new Game
-						Game game = new Game(gameId.getAndIncrement(), socket, (GameTransportObj)obj);
+						GameHandler game = new GameHandler(gameId.getAndIncrement(), socket, (Message)obj, ois);
 						games.add(game);
+						
+						Thread gameThread = new Thread(game);
+						gameThread.setDaemon(true);
+						gameThread.start();
 						
 					}
 				}

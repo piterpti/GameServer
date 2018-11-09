@@ -3,12 +3,11 @@ package elukasik.pl.view;
 import java.awt.BorderLayout;
 
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.SwingUtilities;
 
 import elukasik.pl.connection.GameFlow;
-import elukasik.pl.game.Board;
+import pl.elukasik.model.Board;
 
 /**
  * Main application window
@@ -29,9 +28,9 @@ public class TicTacToeWindow {
 		Board b = new Board();
 		TicTacToeBoard panelBoard = new TicTacToeBoard(game);
 		mainFrame.add(panelBoard, BorderLayout.CENTER);
-		
-		final JLabel gameStatus = new JLabel("Waiting");
-		mainFrame.add(gameStatus, BorderLayout.SOUTH);
+//		
+//		final JLabel gameStatus = new JLabel("Waiting");
+//		mainFrame.add(gameStatus, BorderLayout.SOUTH);
 		
 		panelBoard.drawBoard(b);
 		game.setGameBoard(panelBoard);
@@ -51,8 +50,11 @@ public class TicTacToeWindow {
 					
 				}
 			}
+			
 			SwingUtilities.invokeLater(() -> {
-				JOptionPane.showMessageDialog(mainFrame, "Couldn't connect to server");
+				if (game.getErrMsg() != null) {
+					JOptionPane.showMessageDialog(mainFrame, "Couldn't connect to server");
+				}
 				mainFrame.dispose();
 				new TicTacToeMenu();
 			});

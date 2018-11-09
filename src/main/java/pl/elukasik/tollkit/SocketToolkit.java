@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import pl.elukasik.model.GameTransportObj;
+import pl.elukasik.model.Message;
 
 /**
  * Toolkit for reading/writing data to sockets
@@ -25,11 +25,11 @@ public class SocketToolkit {
 
 	private static Logger logger = LoggerFactory.getLogger(SocketToolkit.class);
 	
-	public static Optional<GameTransportObj> getGameTOFromSocket(Socket socket) {
+	public static Optional<Message> getGameTOFromSocket(Socket socket) {
 		
 		InputStream is = null;
 		ObjectInputStream ois = null;
-		GameTransportObj result = null;
+		Message result = null;
 		
 		try {
 		try {
@@ -43,8 +43,8 @@ public class SocketToolkit {
 			
 			try {
 				Object obj = ois.readObject();
-				if (obj instanceof GameTransportObj) {
-					result = (GameTransportObj) obj;
+				if (obj instanceof Message) {
+					result = (Message) obj;
 				}
 				
 			} catch (ClassNotFoundException | IOException e) {

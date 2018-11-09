@@ -15,5 +15,9 @@ public enum Request {
 	/**
 	 * Request that means player move on the game board 
 	 */
-	MOVE
+	MOVE,
+	
+	WAITING_P2,
+	
+	GAME_END
 }

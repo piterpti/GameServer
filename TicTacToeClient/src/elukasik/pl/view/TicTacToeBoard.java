@@ -10,8 +10,8 @@ import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import elukasik.pl.connection.GameFlow;
-import elukasik.pl.game.Board;
 import elukasik.pl.view.component.ClickableField;
+import pl.elukasik.model.Board;
 
 /**
  * Board to play TicTacToe
@@ -22,33 +22,32 @@ import elukasik.pl.view.component.ClickableField;
 public class TicTacToeBoard extends JPanel {
 
 	private static final long serialVersionUID = 1L;
-	
+
 	private ClickableField[][] fields;
-	
+
 	private transient GameFlow flow;
-	
+
 	private JLabel statusLbl;
-	
+
 	public TicTacToeBoard(GameFlow flow) {
-		
+
 		this.flow = flow;
-		
+
 		setLayout(new BorderLayout());
-	
-		
+
 		JPanel boardPanel = new JPanel(new GridLayout(3, 3));
-		
+
 		fields = new ClickableField[3][3];
-		
-		for ( int x = 0; x < 3; x++){
-			for ( int y = 0; y < 3; y++) {
-				ClickableField lbl = new ClickableField(x, y, x + "x" +  y); 
+
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				ClickableField lbl = new ClickableField(x, y, x + "x" + y);
 				fields[x][y] = lbl;
-				
+
 				final int tmpX = x;
 				final int tmpY = y;
 				lbl.addMouseListener(new MouseAdapter() {
-					
+
 					@Override
 					public void mouseClicked(MouseEvent e) {
 						fieldClicked(tmpX, tmpY);
@@ -57,29 +56,38 @@ public class TicTacToeBoard extends JPanel {
 				boardPanel.add(lbl);
 			}
 		}
-		
+
 		statusLbl = new JLabel("");
-		
+
 		add(boardPanel, BorderLayout.CENTER);
 		add(statusLbl, BorderLayout.SOUTH);
 	}
-	
+
 	public void drawBoard(Board board) {
-		for (int x = 0; x < 3; x++){
-			for (int y = 0; y < 3; y++) {
-				fields[x][y].setText(board.getValue(x, y) + "");
+		SwingUtilities.invokeLater(() -> {
+			for (int x = 0; x < 3; x++) {
+				for (int y = 0; y < 3; y++) {
+					
+					if (board.getValue(x, y) == 1) {
+						fields[x][y].setText("x");
+					} else if (board.getValue(x, y) == 2) {
+						fields[x][y].setText("o");
+					} else {
+						fields[x][y].setText("");
+					}
+				}
 			}
-		}
+		});
 	}
-	
+
 	public void fieldClicked(int x, int y) {
 		flow.notifyOnClick(x, y);
 	}
-	
+
 	public void setStatusText(String text) {
 		SwingUtilities.invokeLater(() -> {
 			statusLbl.setText(text);
 		});
 	}
-	
+
 }

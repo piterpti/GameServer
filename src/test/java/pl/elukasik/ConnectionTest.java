@@ -7,7 +7,7 @@ import java.net.Socket;
 
 import org.junit.Test;
 
-import pl.elukasik.model.GameTransportObj;
+import pl.elukasik.model.Message;
 import pl.elukasik.model.Request;
 
 public class ConnectionTest {
@@ -23,7 +23,7 @@ public class ConnectionTest {
 		OutputStream os = socket.getOutputStream();
 		ObjectOutputStream oos = new ObjectOutputStream(os);
 		
-		GameTransportObj gto = new GameTransportObj("John", Request.START_GAME);
+		Message gto = new Message("John", Request.START_GAME);
 		
 		oos.writeObject(gto);
 		oos.flush();

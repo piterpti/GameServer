@@ -2,24 +2,30 @@ package pl.elukasik.model;
 
 import java.io.Serializable;
 
-public class GameTransportObj implements Serializable {
+public class Message implements Serializable {
 
 	private String userName;
 	private Request request;
 	private boolean yourMove = false;
+	private int playerId;
 	
 	private int x;
 	private int y;
 	
-	/** Wait for player 2 join */
-	private boolean waitForP2;
+	private Board board;
+	
+	
 	
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
 	
-	public GameTransportObj(String userName, Request request) {
+	public Message(Request request) {
+		this.request = request;
+	}
+
+	public Message(String userName, Request request) {
 		this.userName = userName;
 		this.request = request;
 	}
@@ -30,9 +36,9 @@ public class GameTransportObj implements Serializable {
 
 	@Override
 	public String toString() {
-		return "GameTransportObj [userName=" + userName + "]";
+		return "Message [userName=" + userName + ", request=" + request + "]";
 	}
-	
+
 	public void setYourMove(boolean yourMove) {
 		this.yourMove = yourMove;
 	}
@@ -57,11 +63,27 @@ public class GameTransportObj implements Serializable {
 		this.y = y;
 	}
 
-	public boolean isWaitForP2() {
-		return waitForP2;
+	public Request getRequest() {
+		return request;
 	}
 
-	public void setWaitForP2(boolean waitForP2) {
-		this.waitForP2 = waitForP2;
-	}	
+	public void setRequest(Request request) {
+		this.request = request;
+	}
+
+	public int getPlayerId() {
+		return playerId;
+	}
+
+	public void setPlayerId(int playerId) {
+		this.playerId = playerId;
+	}
+
+	public Board getBoard() {
+		return board;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
+	}
 }
