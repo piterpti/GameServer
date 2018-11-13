@@ -28,9 +28,6 @@ public class TicTacToeWindow {
 		Board b = new Board();
 		TicTacToeBoard panelBoard = new TicTacToeBoard(game);
 		mainFrame.add(panelBoard, BorderLayout.CENTER);
-//		
-//		final JLabel gameStatus = new JLabel("Waiting");
-//		mainFrame.add(gameStatus, BorderLayout.SOUTH);
 		
 		panelBoard.drawBoard(b);
 		game.setGameBoard(panelBoard);
