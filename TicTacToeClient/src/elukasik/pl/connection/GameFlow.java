@@ -107,9 +107,17 @@ public class GameFlow implements Runnable {
 						setErrMsg(null);
 						setGameEnd(true);
 						break;
-					}
-					
-					
+						
+					case ENEMY_NOT_RESPOND:
+						if (gto.getPlayerId() == playerId) {
+							JOptionPane.showMessageDialog(gameBoard, "Enemy Not Respond.\nYou win");
+						} else {
+							JOptionPane.showMessageDialog(gameBoard, "You lose");
+						}
+						setErrMsg(null);
+						setGameEnd(true);
+						break;
+					}	
 
 				}
 			}

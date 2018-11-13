@@ -11,9 +11,12 @@ import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import pl.elukasik.dao.model.GameState;
 import pl.elukasik.model.GameHandler;
 import pl.elukasik.model.Message;
+import pl.elukasik.service.GameDAOService;
 import pl.elukasik.service.ServerService;
 
 /**
@@ -29,10 +32,9 @@ public class GameServer implements Runnable {
 	
 	private List<GameHandler> games = new LinkedList<>();
 	
-	
 	private final int port;
 	
-	private AtomicLong gameId = new AtomicLong();
+	private GameDAOService gameDAO;
 	
 	public GameServer(final int port) {
 		this.port = port;
@@ -66,7 +68,12 @@ public class GameServer implements Runnable {
 						
 					} else {
 						// creating new Game
-						GameHandler game = new GameHandler(gameId.getAndIncrement(), socket, (Message)obj, ois);
+						
+						GameState gs = new GameState();
+						gs.setGameState("");
+						gameDAO.saveGameState(gs);
+						
+						GameHandler game = new GameHandler(gs.getId(), socket, (Message)obj, ois, gameDAO);
 						games.add(game);
 						
 						Thread gameThread = new Thread(game);
@@ -83,5 +90,9 @@ public class GameServer implements Runnable {
 			logger.error("Cannot start server on port " + port, e);
 			ServerService.setShutdown(true);
 		}
+	}
+	
+	public void setGameDAO(GameDAOService gameDAO) {
+		this.gameDAO = gameDAO;
 	}
 }

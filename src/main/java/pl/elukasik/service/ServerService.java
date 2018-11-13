@@ -3,6 +3,7 @@ package pl.elukasik.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,9 @@ public class ServerService implements InitializingBean {
 
 	private Logger logger = LoggerFactory.getLogger(ServerService.class);
 	private GameServer gameServer;
+	
+	@Autowired
+	private GameDAOService gameDAO;
 	
 	/**
 	 * Server listening port
@@ -40,6 +44,7 @@ public class ServerService implements InitializingBean {
 	public void afterPropertiesSet() throws Exception {
 		
 		gameServer = new GameServer(port);
+		gameServer.setGameDAO(gameDAO);
 		
 		Thread server = new Thread(gameServer, gameServer.getClass().getName());
 		server.setDaemon(true);

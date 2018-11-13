@@ -7,19 +7,21 @@ public class Board implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 	
+	private static final int EMPTY_FIELD = 0;
 	
-	private int[][] board;
+	
+	private int[][] gameBoard;
 	
 	public Board() {
-		board = new int[3][3];
-		setAllBoardValues(0);
+		gameBoard = new int[3][3];
+		setAllBoardValues(EMPTY_FIELD);
 	}
 	
 	
 	public void setAllBoardValues(int player) {
 		for (int x = 0; x < 3; x++){
 			for (int y = 0; y < 3; y++) {
-				board[x][y] = player;
+				gameBoard[x][y] = player;
 			}
 		}
 	}
@@ -31,7 +33,7 @@ public class Board implements Serializable {
 		
 		for (int x = 0; x < 3; x++){
 			for (int y = 0; y < 3; y++) {
-				sb.append(board[x][y]).append(" | ");
+				sb.append(gameBoard[x][y]).append(" | ");
 			}
 			sb.append("\n");
 		}
@@ -39,39 +41,28 @@ public class Board implements Serializable {
 		return sb.toString();
 	}
 	
-	public void fieldClicked(int x, int y, int playerId) {
-		board[x][y] = playerId;
+	/**
+	 * @param x coordinate to click
+	 * @param y coordinate to click
+	 * @param playerId player unique id
+	 * @return was field clicked
+	 */
+	public boolean fieldClicked(int x, int y, int playerId) {
+		
+		if (gameBoard[x][y] != EMPTY_FIELD) {
+			return false;
+		}
+		
+		gameBoard[x][y] = playerId;
+		
+		return true;
 	}
 	
 	public int getValue(int x, int y) {
-		return board[x][y];
+		return gameBoard[x][y];
 	}
 	
-	public static int checkIsEnd(Board b) {
-		
-		int p = -1;
-		if (b.getValue(0, 0) != 0 && b.getValue(0, 0) == b.getValue(0, 1) && b.getValue(0, 1) ==  b.getValue(0, 2)) {
-			p = b.getValue(0, 0);
-		} else if (b.getValue(1, 0) != 0  && b.getValue(1, 0) == b.getValue(1, 1) && b.getValue(1, 1) ==  b.getValue(1, 2)) {
-			p = b.getValue(1, 0);
-		} else if (b.getValue(2, 0) != 0  && b.getValue(2, 0) == b.getValue(2, 1) && b.getValue(2, 1) ==  b.getValue(2, 2)) {
-			p = b.getValue(2, 0);
-		} else if (b.getValue(0, 0) != 0  && b.getValue(0, 0) == b.getValue(1, 0) && b.getValue(1, 0) ==  b.getValue(2, 0)) {
-			p = b.getValue(0, 0);
-		} else if (b.getValue(0, 1) != 0  && b.getValue(0, 1) == b.getValue(1, 1) && b.getValue(1, 1) ==  b.getValue(2, 1)) {
-			p = b.getValue(0, 1);
-		} else if (b.getValue(0, 2) != 0  && b.getValue(0, 2) == b.getValue(1, 2) && b.getValue(1, 2) ==  b.getValue(2, 2)) {
-			p = b.getValue(0, 2);
-		} else if (b.getValue(0, 0) != 0  && b.getValue(0, 0) == b.getValue(1, 1) && b.getValue(1, 1) == b.getValue(2, 2)) {
-			p = b.getValue(0, 0);
-		} else if (b.getValue(0, 2) != 0 && b.getValue(0, 2) == b.getValue(1, 1) && b.getValue(1, 1) == b.getValue(2, 0)) {
-			p = b.getValue(0, 2);
-		} else {
-			p = 0;
-		}
-		
-		return p;
+	public int[][] getBoard() {
+		return gameBoard;
 	}
-	
-	
 }

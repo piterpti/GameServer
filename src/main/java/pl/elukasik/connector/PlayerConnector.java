@@ -69,7 +69,6 @@ public class PlayerConnector implements Closeable {
 					Object obj = ois.readObject();
 					
 					if (obj instanceof Message) {
-						logger.info(obj.toString());
 						setMessage((Message) obj);
 					}
 					

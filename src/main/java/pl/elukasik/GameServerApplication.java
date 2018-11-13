@@ -6,7 +6,7 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 
-import ch.qos.logback.classic.spi.ThrowableProxyVO;
+import pl.elukasik.service.GameDAOService;
 import pl.elukasik.service.ServerService;
 
 /**

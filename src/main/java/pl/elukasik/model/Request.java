@@ -17,7 +17,18 @@ public enum Request {
 	 */
 	MOVE,
 	
+	/**
+	 * 
+	 */
 	WAITING_P2,
 	
-	GAME_END
+	/**
+	 * 
+	 */
+	GAME_END,
+	
+	/**
+	 * 
+	 */
+	ENEMY_NOT_RESPOND,
 }

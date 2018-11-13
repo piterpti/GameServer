@@ -30,6 +30,12 @@ public class Message implements Serializable {
 		this.request = request;
 	}
 	
+	public Message(Request request, int playerId, Board board) {
+		this.request = request;
+		this.playerId = playerId;
+		this.board = board;
+	}
+
 	public String getUserName() {
 		return userName;
 	}
