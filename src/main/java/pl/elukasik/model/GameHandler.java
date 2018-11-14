@@ -11,7 +11,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import pl.elukasik.connector.PlayerConnector;
+import pl.elukasik.exception.ConnectionLostException;
 import pl.elukasik.service.GameDAOService;
+import pl.elukasik.service.MessageSenderService;
 import pl.elukasik.tollkit.GameToolkit;
 
 /**
@@ -23,6 +25,12 @@ import pl.elukasik.tollkit.GameToolkit;
 public class GameHandler implements Runnable {
 
 	private static Logger logger = LoggerFactory.getLogger(GameHandler.class);
+	
+	/** Time for each player move */
+	private static final long TIME_INTERVAL = TimeUnit.SECONDS.toMillis(30);
+	
+	/** Time for waiting to player 2  */
+	private static final long TIME_WAIT_FOR_P2 = TimeUnit.MINUTES.toMillis(2);
 
 	/**
 	 * Unique game id
@@ -39,14 +47,12 @@ public class GameHandler implements Runnable {
 	private ObjectInputStream oisP2;
 
 	private GameDAOService gameDAO;
+	private MessageSenderService mss;
 
 	private boolean waitingPlayer2 = true;
 
 	private long startTime;
-
-	/** Time for each player move */
-	private long TIME_INTERVAL = TimeUnit.SECONDS.toMillis(30);
-
+	
 	public GameHandler(final long gameId, Socket socketP1, Message obj, ObjectInputStream ois, GameDAOService dao) {
 		this.socketP1 = socketP1;
 		this.gameId = gameId;
@@ -58,6 +64,10 @@ public class GameHandler implements Runnable {
 		this.socketP2 = socketP2;
 		oisP2 = ois;
 		setWaitingPlayer2(false);
+	}
+	
+	public void setMss(MessageSenderService mss) {
+		this.mss = mss;
 	}
 
 	public long getGameId() {
@@ -79,14 +89,21 @@ public class GameHandler implements Runnable {
 	@Override
 	public void run() {
 
-		startTime = System.currentTimeMillis();
+		setStartTime(System.currentTimeMillis());
 		Message msg = new Message(Request.WAITING_P2);
 
 		Board board = new Board();
 
 		try {
 			connP1 = new PlayerConnector(socketP1, oisP1);
-			connP1.sendMessage(msg);
+			
+			try {
+				connP1.sendMessage(msg);
+			} catch (ConnectionLostException e) {
+				// When error on 1st connection then game end
+				logger.error("Can't initialize game", e);
+				return;
+			}
 
 			if (waitForPlayer2()) {
 
@@ -100,7 +117,7 @@ public class GameHandler implements Runnable {
 				msg = new Message(Request.START_GAME, 1, board);
 				sendMsg(msg, new Message(Request.START_GAME, 2, board));
 
-				while ((endResult = checkIsEnd(board)) == 0) {
+				while (!Thread.interrupted() && (endResult = checkIsEnd(board)) == 0) {
 
 					if (changePlayer) {
 						currPlayer = getCurrentPlayer(currPlayer);
@@ -112,7 +129,7 @@ public class GameHandler implements Runnable {
 
 					msg = getPlayerResponse(currPlayer);
 
-					if (msg == null || msg.getRequest() == Request.ENEMY_NOT_RESPOND) {
+					if (msg.getRequest() == Request.ENEMY_NOT_RESPOND) {
 						
 						endResult = getCurrentPlayer(currPlayer);
 						msg = new Message(Request.ENEMY_NOT_RESPOND, endResult, null);
@@ -136,22 +153,27 @@ public class GameHandler implements Runnable {
 
 				closeResources();
 
+			} else {
+					
+				// TODO handle player 2 did not join
+				
 			}
 
 		} catch (IOException e) {
 
 			logger.error("GameHandler error", e);
 
+		} catch (InterruptedException ie) {
+			
+			logger.error("GameHandler ie, server is going down!?", ie);
+			
 		}
 	}
 
-	private boolean sendMsg(Message... msg) {
+	private void sendMsg(Message... msg) {
 
-		if (msg.length == 1) {
-			return connP1.sendMessage(msg[0]) && connP2.sendMessage(msg[0]);
-		} else {
-			return connP1.sendMessage(msg[0]) && connP2.sendMessage(msg[1]);
-		}
+		mss.sendMessage(connP1, msg[0]);
+		mss.sendMessage(connP2, msg[msg.length - 1]);
 
 	}
 
@@ -159,7 +181,7 @@ public class GameHandler implements Runnable {
 		return playerId == 1 ? connP1 : connP2;
 	}
 
-	private Message getPlayerResponse(final int playerId) {
+	private Message getPlayerResponse(final int playerId) throws InterruptedException {
 
 		Message msgFromPlayer = null;
 
@@ -174,8 +196,7 @@ public class GameHandler implements Runnable {
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
-				logger.error("Interrupted", e);
-				return null;
+				throw e;
 			}
 
 		}
@@ -189,9 +210,14 @@ public class GameHandler implements Runnable {
 
 	private boolean waitForPlayer2() {
 
+		long waitTime = System.currentTimeMillis() + TIME_WAIT_FOR_P2;
+		
 		while (isWaitingPlayer2()) {
 
-			// TODO dodać czas na podłączenie 2 gracza
+			if (waitTime > System.currentTimeMillis()) {
+				// waiting 120 seconds
+				return false;
+			}
 
 			try {
 				Thread.sleep(50);
@@ -217,5 +243,13 @@ public class GameHandler implements Runnable {
 			logger.error("", e);
 		}
 
+	}
+	
+	public synchronized void setStartTime(long startTime) {
+		this.startTime = startTime;
+	}
+	
+	public synchronized long getStartTime() {
+		return startTime;
 	}
 }

@@ -22,6 +22,9 @@ public class ServerService implements InitializingBean {
 	@Autowired
 	private GameDAOService gameDAO;
 	
+	@Autowired
+	private MessageSenderService mss;
+	
 	/**
 	 * Server listening port
 	 */
@@ -45,6 +48,7 @@ public class ServerService implements InitializingBean {
 		
 		gameServer = new GameServer(port);
 		gameServer.setGameDAO(gameDAO);
+		gameServer.setMss(mss);
 		
 		Thread server = new Thread(gameServer, gameServer.getClass().getName());
 		server.setDaemon(true);

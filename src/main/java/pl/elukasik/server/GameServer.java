@@ -3,20 +3,20 @@ package pl.elukasik.server;
 import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicLong;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import pl.elukasik.dao.model.GameState;
 import pl.elukasik.model.GameHandler;
 import pl.elukasik.model.Message;
 import pl.elukasik.service.GameDAOService;
+import pl.elukasik.service.MessageSenderService;
 import pl.elukasik.service.ServerService;
 
 /**
@@ -30,11 +30,12 @@ public class GameServer implements Runnable {
 	
 	private Logger logger = LoggerFactory.getLogger(GameServer.class);
 	
-	private List<GameHandler> games = new LinkedList<>();
+	private List<GameHandler> games = Collections.synchronizedList(new ArrayList<>());
 	
 	private final int port;
 	
 	private GameDAOService gameDAO;
+	private MessageSenderService mss;
 	
 	public GameServer(final int port) {
 		this.port = port;
@@ -62,7 +63,7 @@ public class GameServer implements Runnable {
 					Optional<GameHandler> gameObj = games.stream().filter(g -> g.isWaitingPlayer2()).findFirst();
 					
 					if (gameObj.isPresent()) {
-						// joining to existing game
+						// joining or reconnecting to existing game
 						GameHandler game = gameObj.get();
 						game.setSocketP2(socket, (Message)obj, ois);
 						
@@ -74,7 +75,9 @@ public class GameServer implements Runnable {
 						gameDAO.saveGameState(gs);
 						
 						GameHandler game = new GameHandler(gs.getId(), socket, (Message)obj, ois, gameDAO);
+						game.setMss(mss);
 						games.add(game);
+						
 						
 						Thread gameThread = new Thread(game);
 						gameThread.setDaemon(true);
@@ -94,5 +97,9 @@ public class GameServer implements Runnable {
 	
 	public void setGameDAO(GameDAOService gameDAO) {
 		this.gameDAO = gameDAO;
+	}
+	
+	public void setMss(MessageSenderService mss) {
+		this.mss = mss;
 	}
 }
