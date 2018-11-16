@@ -99,11 +99,15 @@ public class GameFlow implements Runnable {
 					case GAME_END:
 						board = gto.getBoard();
 						gameBoard.drawBoard(board);
+						
 						if (gto.getPlayerId() == playerId) {
 							JOptionPane.showMessageDialog(gameBoard, "You win");
+						} else if (gto.getPlayerId() == -10) {
+							JOptionPane.showMessageDialog(gameBoard, "Game draw!");
 						} else {
 							JOptionPane.showMessageDialog(gameBoard, "You lose");
 						}
+						
 						setErrMsg(null);
 						setGameEnd(true);
 						break;

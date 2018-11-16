@@ -25,8 +25,6 @@ public class PlayerConnector implements Closeable {
 	
 	private boolean end = false;
 	
-	private Queue<Message> msgs = new ArrayDeque<>();
-
 	public PlayerConnector(Socket socket, ObjectInputStream ois) throws IOException {
 		
 		oos = new ObjectOutputStream(socket.getOutputStream());

@@ -11,6 +11,11 @@ import pl.elukasik.model.Board;
  */
 public class GameToolkit {
 	
+	/**
+	 * Result that means game draw
+	 */
+	public static final int RESULT_DRAW = -10;
+	
 	private GameToolkit() {
 		
 	}
@@ -24,6 +29,20 @@ public class GameToolkit {
 	public static int checkIsEnd(Board b) {
 
 		int p = -1;
+		boolean isDraw = true;
+		
+		for (int x = 0; x < 3; x++) {
+			for (int y = 0; y < 3; y++) {
+				if (b.getValue(x, y) == 0) {
+					isDraw = false;
+					break;
+				}
+			}
+			if (!isDraw) {
+				break;
+			}
+		}
+		
 		if (b.getValue(0, 0) != 0 && b.getValue(0, 0) == b.getValue(0, 1) && b.getValue(0, 1) == b.getValue(0, 2)) {
 			p = b.getValue(0, 0);
 		} else if (b.getValue(1, 0) != 0 && b.getValue(1, 0) == b.getValue(1, 1)
@@ -49,6 +68,7 @@ public class GameToolkit {
 			p = b.getValue(0, 2);
 		} else {
 			p = 0;
+			p = isDraw ? RESULT_DRAW : 0;
 		}
 
 		return p;

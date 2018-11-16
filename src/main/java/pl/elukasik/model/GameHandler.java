@@ -50,6 +50,9 @@ public class GameHandler implements Runnable {
 	private MessageSenderService mss;
 
 	private boolean waitingPlayer2 = true;
+	
+	private boolean shtudown = false;
+	private boolean end = false;
 
 	private long startTime;
 	
@@ -148,14 +151,10 @@ public class GameHandler implements Runnable {
 
 				if (!notRespond) {
 					msg = new Message(Request.GAME_END, endResult, board);
-					sendMsg(msg);
+					sendMsg( msg);
 				}
 
-				closeResources();
-
 			} else {
-					
-				// TODO handle player 2 did not join
 				
 			}
 
@@ -167,13 +166,20 @@ public class GameHandler implements Runnable {
 			
 			logger.error("GameHandler ie, server is going down!?", ie);
 			
+		} finally {
+			sendMsg(true, new Message[1]);
+			setEnd(true);
 		}
 	}
+	
+	private void sendMsg(Message ...msg) {
+		sendMsg(false, msg);
+	}
 
-	private void sendMsg(Message... msg) {
+	private void sendMsg(boolean closeRes, Message... msg) {
 
-		mss.sendMessage(connP1, msg[0]);
-		mss.sendMessage(connP2, msg[msg.length - 1]);
+		mss.sendMessage(connP1, msg[0], closeRes);
+		mss.sendMessage(connP2, msg[msg.length - 1], closeRes);
 
 	}
 
@@ -186,7 +192,7 @@ public class GameHandler implements Runnable {
 		Message msgFromPlayer = null;
 
 		long waitTo = System.currentTimeMillis() + TIME_INTERVAL;
-		while (msgFromPlayer == null) {
+		while (msgFromPlayer == null || isShtudown()) {
 
 			if (System.currentTimeMillis() > waitTo) {
 				return new Message(Request.ENEMY_NOT_RESPOND);
@@ -212,9 +218,9 @@ public class GameHandler implements Runnable {
 
 		long waitTime = System.currentTimeMillis() + TIME_WAIT_FOR_P2;
 		
-		while (isWaitingPlayer2()) {
+		while (isWaitingPlayer2() || isShtudown()) {
 
-			if (waitTime > System.currentTimeMillis()) {
+			if (waitTime < System.currentTimeMillis()) {
 				// waiting 120 seconds
 				return false;
 			}
@@ -228,22 +234,6 @@ public class GameHandler implements Runnable {
 
 		return true;
 	}
-
-	private void closeResources() {
-
-		try {
-			connP1.close();
-		} catch (IOException e) {
-			logger.error("", e);
-		}
-
-		try {
-			connP2.close();
-		} catch (IOException e) {
-			logger.error("", e);
-		}
-
-	}
 	
 	public synchronized void setStartTime(long startTime) {
 		this.startTime = startTime;
@@ -251,5 +241,21 @@ public class GameHandler implements Runnable {
 	
 	public synchronized long getStartTime() {
 		return startTime;
+	}
+	
+	public synchronized boolean isShtudown() {
+		return shtudown;
+	}
+	
+	public synchronized void setShtudown(boolean shtudown) {
+		this.shtudown = shtudown;
+	}
+	
+	public synchronized void setEnd(boolean end) {
+		this.end = end;
+	}
+	
+	public synchronized boolean isEnd() {
+		return end;
 	}
 }

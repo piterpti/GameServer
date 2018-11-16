@@ -60,10 +60,14 @@ public class GameServer implements Runnable {
 				
 				if (obj instanceof Message) {
 				
-					Optional<GameHandler> gameObj = games.stream().filter(g -> g.isWaitingPlayer2()).findFirst();
+					Optional<GameHandler> gameObj = Optional.empty();
+					synchronized (games) {
+						gameObj = games.stream().filter(g -> g.isWaitingPlayer2()).findFirst();
+					}
 					
 					if (gameObj.isPresent()) {
 						// joining or reconnecting to existing game
+						logger.info("Player 2 joining");
 						GameHandler game = gameObj.get();
 						game.setSocketP2(socket, (Message)obj, ois);
 						
@@ -102,4 +106,9 @@ public class GameServer implements Runnable {
 	public void setMss(MessageSenderService mss) {
 		this.mss = mss;
 	}
+	
+	public List<GameHandler> getGames() {
+		return games;
+	}
+	
 }

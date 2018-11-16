@@ -9,6 +9,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.stereotype.Service;
 
 import pl.elukasik.server.GameServer;
+import pl.elukasik.server.RemoveOldGamesThread;
 
 @Service
 @PropertySource(ignoreResourceNotFound = false, value = "classpath:gameServer.properties")
@@ -53,5 +54,11 @@ public class ServerService implements InitializingBean {
 		Thread server = new Thread(gameServer, gameServer.getClass().getName());
 		server.setDaemon(true);
 		server.start();
+		
+		RemoveOldGamesThread orgThread = new RemoveOldGamesThread(gameServer);
+		Thread removesOldGamesT = new Thread(orgThread);
+		removesOldGamesT.setDaemon(true);
+		removesOldGamesT.setName("RemoveOldGamesThread");
+		removesOldGamesT.start();
 	}
 }
